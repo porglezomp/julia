@@ -1,8 +1,8 @@
 use sdl2::rect::Rect;
 use std::cmp::min;
 
-pub const BATCH_WIDTH : i32 = 128;
-pub const BATCH_HEIGHT : i32 = 128;
+pub const BATCH_WIDTH : usize = 128;
+pub const BATCH_HEIGHT : usize = 128;
 
 pub struct Batch {
     pub rect: Rect,
@@ -10,17 +10,17 @@ pub struct Batch {
 }
 
 #[derive(Debug, Clone)]
-struct RectGenerator {
+pub struct RectGenerator {
     screen_width: i32,
     screen_height: i32,
     x : i32,
     y : i32,
 }
 
-pub fn screen_rects(width: i32, height: i32) -> RectGenerator {
+pub fn screen_rects(width: u32, height: u32) -> RectGenerator {
     RectGenerator {
-        screen_width: width,
-        screen_height: height,
+        screen_width: width as i32,
+        screen_height: height as i32,
         x: 0,
         y: 0,
     }
@@ -32,14 +32,14 @@ impl Iterator for RectGenerator {
             return None
         }
 
-        let width = min(BATCH_WIDTH, self.screen_width - self.x);
-        let height = min(BATCH_HEIGHT, self.screen_height - self.y);
-        let res = Rect::new(self.x, self.y, width, height);
+        let width = min(BATCH_WIDTH as i32, self.screen_width - self.x) as u32;
+        let height = min(BATCH_HEIGHT as i32, self.screen_height - self.y) as u32;
+        let res = Rect::new_unwrap(self.x, self.y, width, height);
         
-        self.x += BATCH_WIDTH;
+        self.x += BATCH_WIDTH as i32;
         if self.x >= self.screen_width {
             self.x = 0;
-            self.y += BATCH_HEIGHT;
+            self.y += BATCH_HEIGHT as i32;
         }
         
         Some(res)
