@@ -6,3 +6,4 @@ authors = ["Caleb Jones <bionicle.dragon@gmail.com>"]
 
 [dependencies]
 sdl2 = "0.12"
+image = "^0.10"
