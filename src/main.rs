@@ -1,5 +1,5 @@
-extern crate sdl2;
 extern crate image;
+extern crate sdl2;
 
 use sdl2::render::Renderer;
 use sdl2::event::Event;
@@ -7,10 +7,10 @@ use sdl2::rect::Rect;
 use sdl2::keyboard::Keycode;
 use std::sync::mpsc::{channel, Sender};
 use std::thread;
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 use std::io::Write;
 
-use batches::{Batch, screen_rects, BATCH_WIDTH, BATCH_HEIGHT};
+use batches::{screen_rects, Batch, BATCH_HEIGHT, BATCH_WIDTH};
 
 mod batches;
 
@@ -23,20 +23,24 @@ fn main() {
     let video_ctx = ctx.video().unwrap();
     let mut event_pump = ctx.event_pump().unwrap();
 
-    let window =
-        match video_ctx.window("Julia", WIDTH, HEIGHT).position_centered().opengl().build() {
-            Ok(window) => window,
-            Err(error) => panic!("Failed to create window: {}", error),
-        };
+    let window = match video_ctx
+        .window("Julia", WIDTH, HEIGHT)
+        .position_centered()
+        .opengl()
+        .build()
+    {
+        Ok(window) => window,
+        Err(error) => panic!("Failed to create window: {}", error),
+    };
 
     let mut renderer = match window.renderer().build() {
         Ok(renderer) => renderer,
         Err(error) => panic!("Failed to create renderer: {}", error),
     };
 
-    let mut texture =
-        renderer.create_texture_streaming(sdl2::pixels::PixelFormatEnum::RGB24, (WIDTH, HEIGHT))
-            .unwrap();
+    let mut texture = renderer
+        .create_texture_streaming(sdl2::pixels::PixelFormatEnum::RGB24, (WIDTH, HEIGHT))
+        .unwrap();
 
     let (sender, receiver) = channel();
 
@@ -71,7 +75,7 @@ fn main() {
         for _ in 0..num_rects {
             let x = *receiver.recv().unwrap();
             match texture.update(Some(x.rect), &x.pixels, batches::BATCH_WIDTH * 3) {
-                Ok(())   => (),
+                Ok(()) => (),
                 Err(msg) => panic!("Error updating texture: {}", msg),
             }
         }
@@ -98,24 +102,40 @@ fn main() {
                     data.y = newy;
                     ready_to_break = true;
                 }
-                Some(Event::KeyDown { keycode: Some(Keycode::Up), .. }) => {
+                Some(Event::KeyDown {
+                    keycode: Some(Keycode::Up),
+                    ..
+                }) => {
                     data.n = min(data.n as u32 + 1, 255) as u8;
                     set_title(&mut renderer, &data);
                     ready_to_break = true;
                 }
-                Some(Event::KeyDown { keycode: Some(Keycode::Down), .. }) => {
+                Some(Event::KeyDown {
+                    keycode: Some(Keycode::Down),
+                    ..
+                }) => {
                     data.n = max(data.n - 1, 1);
                     set_title(&mut renderer, &data);
                     ready_to_break = true;
                 }
-                Some(Event::KeyDown { keycode: Some(Keycode::Space), .. }) => {
+                Some(Event::KeyDown {
+                    keycode: Some(Keycode::Space),
+                    ..
+                }) => {
                     let dat = data.clone();
-                    let _ = thread::Builder::new().name("Save Image".into()).spawn(move || {
-                        let fname = format!("image{:04}.png", image_id);
-                        if let Err(e) = render_to_image(&fname, dat) {
-                            let _ = writeln!(std::io::stderr(), "Error saving image {}: {:?}", fname, e);
-                        }
-                    });
+                    let _ = thread::Builder::new()
+                        .name("Save Image".into())
+                        .spawn(move || {
+                            let fname = format!("image{:04}.png", image_id);
+                            if let Err(e) = render_to_image(&fname, dat) {
+                                let _ = writeln!(
+                                    std::io::stderr(),
+                                    "Error saving image {}: {:?}",
+                                    fname,
+                                    e
+                                );
+                            }
+                        });
                     image_id += 1;
                 }
                 None => {
@@ -133,7 +153,8 @@ fn main() {
 }
 
 fn set_title(renderer: &mut Renderer, data: &Data) {
-    renderer.window_mut()
+    renderer
+        .window_mut()
         .unwrap()
         .set_title(&format!("Julia ({} iterations)", data.n));
 }
@@ -177,7 +198,11 @@ fn calc_batch(rect: Rect, sender: Sender<Box<Batch>>, data: Data) {
 }
 
 fn color(x: u8) -> (u8, u8, u8) {
-    if x == 255 { (0, 0, 0) } else { (255, x, x / 2) }
+    if x == 255 {
+        (0, 0, 0)
+    } else {
+        (255, x, x / 2)
+    }
 }
 
 fn cmpsqr(a: f32, b: f32) -> (f32, f32) {
@@ -202,7 +227,7 @@ fn julia(mut a: f32, mut b: f32, data: &Data) -> u8 {
     255
 }
 
-fn render_to_image(fname: &str, data: Data) -> std::io::Result<()>{
+fn render_to_image(fname: &str, data: Data) -> std::io::Result<()> {
     const HEIGHT: usize = 4096;
     const WIDTH: usize = HEIGHT * 110 / 85;
     const ASPECT: f32 = WIDTH as f32 / HEIGHT as f32;
@@ -217,9 +242,16 @@ fn render_to_image(fname: &str, data: Data) -> std::io::Result<()>{
         for (x, pixel) in row.chunks_mut(3).enumerate() {
             let (real, imag) = map_pixel(x, y);
             let (r, g, b) = color(julia(real, imag, &data));
-            pixel[0] = r; pixel[1] = g; pixel[2] = b;
+            pixel[0] = r;
+            pixel[1] = g;
+            pixel[2] = b;
         }
     }
-    image::save_buffer(fname, &buffer, WIDTH as u32, HEIGHT as u32,
-                       image::ColorType::RGB(8))
+    image::save_buffer(
+        fname,
+        &buffer,
+        WIDTH as u32,
+        HEIGHT as u32,
+        image::ColorType::RGB(8),
+    )
 }
