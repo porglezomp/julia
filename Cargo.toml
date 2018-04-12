@@ -5,5 +5,5 @@ version = "0.1.0"
 authors = ["Caleb Jones <bionicle.dragon@gmail.com>"]
 
 [dependencies]
-sdl2 = "0.12"
+sdl2 = "0.29"
 image = "^0.10"

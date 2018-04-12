@@ -30,7 +30,7 @@ fn main() {
         .build()
     {
         Ok(window) => window,
-        Err(error) => panic!("Failed to create window: {}", error),
+        Err(error) => panic!("Failed to create window: {:?}", error),
     };
 
     let mut renderer = match window.renderer().build() {
@@ -39,8 +39,8 @@ fn main() {
     };
 
     let mut texture = renderer
-        .create_texture_streaming(sdl2::pixels::PixelFormatEnum::RGB24, (WIDTH, HEIGHT))
-        .unwrap();
+        .create_texture_streaming(sdl2::pixels::PixelFormatEnum::RGB24, WIDTH, HEIGHT)
+        .expect("Getting texture");
 
     let (sender, receiver) = channel();
 
@@ -73,19 +73,19 @@ fn main() {
         //     data.xoff = 0.002;
         // }
         for _ in 0..num_rects {
-            let x = *receiver.recv().unwrap();
+            let x = *receiver.recv().expect("Recieve");
             match texture.update(Some(x.rect), &x.pixels, batches::BATCH_WIDTH * 3) {
                 Ok(()) => (),
-                Err(msg) => panic!("Error updating texture: {}", msg),
+                Err(msg) => panic!("Error updating texture: {:?}", msg),
             }
         }
 
         texture.set_blend_mode(sdl2::render::BlendMode::Blend);
         texture.set_alpha_mod(255);
-        renderer.copy(&texture, None, None);
+        renderer.copy(&texture, None, None).expect("Copied texture");
         renderer.present();
         // Copy the texture into both buffers
-        renderer.copy(&texture, None, None);
+        renderer.copy(&texture, None, None).unwrap("Copied texture");
 
         let mut ready_to_break = true;
         let mut next_event: Option<Event> = None;
@@ -155,8 +155,9 @@ fn main() {
 fn set_title(renderer: &mut Renderer, data: &Data) {
     renderer
         .window_mut()
-        .unwrap()
-        .set_title(&format!("Julia ({} iterations)", data.n));
+        .expect("Get mut window")
+        .set_title(&format!("Julia ({} iterations)", data.n))
+        .expect("Set title");
 }
 
 #[derive(Clone)]

@@ -34,7 +34,7 @@ impl Iterator for RectGenerator {
 
         let width = min(BATCH_WIDTH as i32, self.screen_width - self.x) as u32;
         let height = min(BATCH_HEIGHT as i32, self.screen_height - self.y) as u32;
-        let res = Rect::new_unwrap(self.x, self.y, width, height);
+        let res = Rect::new(self.x, self.y, width, height);
 
         self.x += BATCH_WIDTH as i32;
         if self.x >= self.screen_width {
