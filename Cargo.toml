@@ -1,8 +1,13 @@
 [package]
-
 name = "julia"
 version = "0.1.0"
-authors = ["Caleb Jones <bionicle.dragon@gmail.com>"]
+authors = ["C Jones <code@calebjones.net>"]
+description = "A program for rendering Julia sets in real time"
+repository = "https://github.com/porglezomp/julia"
+readme = "README.md"
+keywords = ["fractal", "julia set"]
+categories = ["rendering"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 sdl2 = "0.29"
