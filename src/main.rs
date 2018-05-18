@@ -85,7 +85,7 @@ fn main() {
         renderer.copy(&texture, None, None).expect("Copied texture");
         renderer.present();
         // Copy the texture into both buffers
-        renderer.copy(&texture, None, None).unwrap("Copied texture");
+        renderer.copy(&texture, None, None).expect("Copied texture");
 
         let mut ready_to_break = true;
         let mut next_event: Option<Event> = None;

@@ -2,6 +2,12 @@ Julia
 =====
 A parallel realtime Julia set renderer in Rust
 
+Dependencies
+--------
+Requires the SDL2 library. This can be installed via most package managers or you can build from source by following the instructions at https://wiki.libsdl.org/Installation.
+
+If you are on MacOS and have [Homebrew](https://brew.sh/), you can do `brew install sdl2`.
+
 Controls
 --------
 * Move the mouse to define the key point of the Julia set.
